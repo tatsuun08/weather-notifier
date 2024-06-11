@@ -25,21 +25,23 @@ def get_city_weather(area) -> dict:
     response = requests.get(id_list_url)
     root = ET.fromstring(response.text)
 
-    city = get_city_id(root, area)
-    url = weather_list_url + city[0]["id"]
-    text = requests.get(url).text
-    json_file = json.loads(text)
+    cities = get_city_id(root, area)
+    weathers = []
+    for city in cities:
+        url = weather_list_url + city["id"]
+        text = requests.get(url).text
+        json_file = json.loads(text)
+        f = json_file
+        city_weather = {
+            "name": f["location"]["city"],
+            "prefecture": f["location"]["prefecture"],
+            "weather": f["forecasts"][0]["telop"],
+            "max_tempreture": f["forecasts"][0]["temperature"]["max"]["celsius"],
+            "min_tempreture": f["forecasts"][0]["temperature"]["min"]["celsius"],
+        }
+        weathers.append(city_weather)
 
-
-    f = json_file
-    city_weather = {
-        "name": f["location"]["city"],
-        "prefecture": f["location"]["prefecture"],
-        "weather": f["forecasts"][0]["telop"],
-        "max_tempreture": f["forecasts"][0]["temperature"]["max"]["celsius"],
-        "min_tempreture": f["forecasts"][0]["temperature"]["min"]["celsius"],
-    }
-    return city_weather
+    return weathers
 
 
 
